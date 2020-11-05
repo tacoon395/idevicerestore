@@ -34,21 +34,23 @@ extern "C" {
 #include <libirecovery.h>
 
 // the flag with value 1 is reserved for internal use only. don't use it.
-#define FLAG_DEBUG           (1 << 1)
-#define FLAG_ERASE           (1 << 2)
-#define FLAG_CUSTOM          (1 << 3)
-#define FLAG_EXCLUDE         (1 << 4)
-#define FLAG_PWN             (1 << 5)
-#define FLAG_NOACTION        (1 << 6)
-#define FLAG_SHSHONLY        (1 << 7)
-#define FLAG_LATEST          (1 << 8)
-#define FLAG_INTERACTIVE     (1 << 9)
-#define FLAG_DOWNGRADE       (1 << 10)
-#define FLAG_OTAMANIFEST     (1 << 11)
-#define FLAG_BOOT            (1 << 12)
-#define FLAG_PANICLOG        (1 << 13)
-#define FLAG_NOBOOTX         (1 << 14)
+#define FLAG_DEBUG              (1 << 1)
+#define FLAG_ERASE              (1 << 2)
+#define FLAG_CUSTOM             (1 << 3)
+#define FLAG_EXCLUDE            (1 << 4)
+#define FLAG_PWN                (1 << 5)
+#define FLAG_NOACTION           (1 << 6)
+#define FLAG_SHSHONLY           (1 << 7)
+#define FLAG_LATEST             (1 << 8)
+#define FLAG_INTERACTIVE        (1 << 9)
+#define FLAG_DOWNGRADE          (1 << 10)
+#define FLAG_OTAMANIFEST        (1 << 11)
+#define FLAG_BOOT               (1 << 12)
+#define FLAG_PANICLOG           (1 << 13)
+#define FLAG_NOBOOTX            (1 << 14)
 #define FLAG_ALLOW_RESTORE_MODE (1 << 15)
+#define FLAG_ALLOW_RESTORE_MODE (1 << 10)
+#define FLAG_NO_RESTORE         (1 << 11)
 
 struct idevicerestore_client_t;
 
@@ -68,7 +70,7 @@ typedef void (*idevicerestore_progress_cb_t)(int step, double step_progress, voi
 struct idevicerestore_client_t* idevicerestore_client_new(void);
 void idevicerestore_client_free(struct idevicerestore_client_t* client);
 
-void idevicerestore_set_ecid(struct idevicerestore_client_t* client, unsigned long long ecid);
+void idevicerestore_set_ecid(struct idevicerestore_client_t* client, uint64_t ecid);
 void idevicerestore_set_udid(struct idevicerestore_client_t* client, const char* udid);
 void idevicerestore_set_flags(struct idevicerestore_client_t* client, int flags);
 void idevicerestore_set_ipsw(struct idevicerestore_client_t* client, const char* path);

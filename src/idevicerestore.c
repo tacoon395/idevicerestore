@@ -56,29 +56,31 @@
 
 #ifndef IDEVICERESTORE_NOMAIN
 static struct option longopts[] = {
-	{ "ecid",        required_argument,  NULL,  'i' },
-	{ "udid",        required_argument,  NULL,  'u' },
-	{ "debug",       no_argument,        NULL,  'd' },
-	{ "help",        no_argument,        NULL,  'h' },
-	{ "erase",       no_argument,        NULL,  'e' },
-	{ "custom",      no_argument,        NULL,  'c' },
-	{ "latest",      no_argument,        NULL,  'l' },
-	{ "cydia",       no_argument,        NULL,  's' },
-	{ "exclude",     no_argument,        NULL,  'x' },
-	{ "shsh",        no_argument,        NULL,  't' },
-	{ "keep-pers",   no_argument,        NULL,  'k' },
-	{ "pwn",         no_argument,        NULL,  'p' },
-	{ "no-action",   no_argument,        NULL,  'n' },
-	{ "cache-path",  required_argument,  NULL,  'C' },
-    { "downgrade",   no_argument,        NULL,  'w' },
-    { "otamanifest", required_argument,  NULL,  'o' },
-    { "boot",        no_argument,        NULL,  'b' },
-    { "paniclog",    no_argument,        NULL,  'g' },
-    { "nobootx",     no_argument,        NULL,  'b' },
-	{ "no-input",    no_argument,        NULL,  'y' },
-	{ "plain-progress", no_argument, NULL, 'P' },
-	{ "restore-mode", no_argument,  NULL, 'R' },
-	{ "ticket", required_argument,  NULL, 'T' },
+	{ "ecid",           required_argument, NULL, 'i' },
+	{ "udid",           required_argument, NULL, 'u' },
+	{ "debug",          no_argument,       NULL, 'd' },
+	{ "help",           no_argument,       NULL, 'h' },
+	{ "erase",          no_argument,       NULL, 'e' },
+	{ "custom",         no_argument,       NULL, 'c' },
+	{ "latest",         no_argument,       NULL, 'l' },
+	{ "cydia",          no_argument,       NULL, 's' },
+	{ "exclude",        no_argument,       NULL, 'x' },
+	{ "shsh",           no_argument,       NULL, 't' },
+	{ "keep-pers",      no_argument,       NULL, 'k' },
+	{ "pwn",            no_argument,       NULL, 'p' },
+	{ "no-action",      no_argument,       NULL, 'n' },
+	{ "cache-path",     required_argument, NULL, 'C' },
+    { "downgrade",      no_argument,       NULL, 'w' },
+    { "otamanifest",    required_argument, NULL, 'o' },
+    { "boot",           no_argument,       NULL, 'b' },
+    { "paniclog",       no_argument,       NULL, 'g' },
+    { "nobootx",        no_argument,       NULL, 'b' },
+	{ "no-input",       no_argument,       NULL, 'y' },
+	{ "plain-progress", no_argument,       NULL, 'P' },
+	{ "restore-mode",   no_argument,       NULL, 'R' },
+	{ "ticket",         required_argument, NULL, 'T' },
+	{ "no-restore",     no_argument,       NULL, 'z' },
+	{ "version",        no_argument,       NULL, 'v' },
 	{ NULL, 0, NULL, 0 }
 };
 
@@ -87,48 +89,58 @@ static void usage(int argc, char* argv[], int err)
 	char* name = strrchr(argv[0], '/');
 	fprintf((err) ? stderr : stdout,
 	"Usage: %s [OPTIONS] PATH\n" \
-	"Restore IPSW firmware at PATH to an iOS device.\n\n" \
+	"\n" \
+	"Restore IPSW firmware at PATH to an iOS device.\n" \
+	"\n" \
 	"PATH can be a compressed .ipsw file or a directory containing all files\n" \
-	"extracted from an IPSW.\n\n" \
-	"Options:\n" \
-	" -i, --ecid ECID  Target specific device by its ECID\n" \
-	"                  e.g. 0xaabb123456 (hex) or 1234567890 (decimal)\n" \
-	" -u, --udid UDID  Target specific device by its device UDID\n" \
-	"                  NOTE: only works with devices in normal mode.\n" \
-	" -l, --latest     Use latest available firmware (with download on demand).\n" \
-	"                  Before performing any action it will interactively ask to\n" \
-	"                  select one of the currently signed firmware versions,\n" \
-	"                  unless -y has been given too.\n" \
-	"                  The PATH argument is ignored when using this option.\n" \
-	"                  DO NOT USE if you need to preserve the baseband (unlock)!\n" \
-	"                  USE WITH CARE if you want to keep a jailbreakable firmware!\n" \
-	" -e, --erase      Perform a full restore, erasing all data (defaults to update)\n" \
-	"                  DO NOT USE if you want to preserve user data on the device!\n" \
-	" -y, --no-input   Non-interactive mode, do not ask for any input.\n" \
-	"                  WARNING: This will disable certain checks/prompts that are\n" \
-	"                  supposed to prevent DATA LOSS. Use with caution.\n" \
-	" -n, --no-action  Do not perform any restore action. If combined with -l option\n" \
-	"                  the on-demand ipsw download is performed before exiting.\n" \
-	" -h, --help       Prints this usage information\n" \
-	" -C, --cache-path DIR  Use specified directory for caching extracted or other\n" \
-	"                       reused files.\n" \
-	" -d, --debug           Enable communication debugging\n\n" \
+	"extracted from an IPSW.\n" \
+	"\n" \
+	"OPTIONS:\n" \
+	"  -i, --ecid ECID       Target specific device by its ECID\n" \
+	"                        e.g. 0xaabb123456 (hex) or 1234567890 (decimal)\n" \
+	"  -u, --udid UDID       Target specific device by its device UDID\n" \
+	"                        NOTE: only works with devices in normal mode.\n" \
+	"  -l, --latest          Use latest available firmware (with download on demand).\n" \
+	"                        Before performing any action it will interactively ask\n" \
+	"                        to select one of the currently signed firmware versions,\n" \
+	"                        unless -y has been given too.\n" \
+	"                        The PATH argument is ignored when using this option.\n" \
+	"                        DO NOT USE if you need to preserve the baseband/unlock!\n" \
+	"                        USE WITH CARE if you want to keep a jailbreakable\n" \
+	"                        firmware!\n" \
+	"  -e, --erase           Perform full restore instead of update, erasing all data\n" \
+	"                        DO NOT USE if you want to preserve user data on the device!\n" \
+	"  -y, --no-input        Non-interactive mode, do not ask for any input.\n" \
+	"                        WARNING: This will disable certain checks/prompts that\n" \
+	"                        are supposed to prevent DATA LOSS. Use with caution.\n" \
+	"  -n, --no-action       Do not perform any restore action. If combined with -l\n" \
+	"                        option the on-demand ipsw download is performed before\n" \
+	"                        exiting.\n" \
+	"  -h, --help            Prints this usage information\n" \
+	"  -C, --cache-path DIR  Use specified directory for caching extracted or other\n" \
+	"                        reused files.\n" \
+	"  -d, --debug           Enable communication debugging\n" \
+	"  -v, --version         Print version information\n" \
+	"\n" \
 	"Advanced/experimental options:\n"
-	" -c, --custom          Restore with a custom firmware (only for 32-bit devices)\n" \
-    " -w, --downgrade       Downgrade with a custom firmware using Odysseus method (only for 32-bit devices!)\n" \
-	" -s, --cydia           Use Cydia's signature service instead of Apple's (only for 32-bit devices)\n" \
-	" -x, --exclude         Exclude nor/baseband upgrade\n" \
-	" -t, --shsh            Fetch TSS record and save to .shsh file, then exit\n" \
-    " -o, --otamanifest     Specify OTA BuildManifest to sign bootfiles with a different ApTicket\n\n" \
-	" -k, --keep-pers       Write personalized components to files for debugging\n" \
-	" -p, --pwn             Put device in pwned DFU mode and exit (limera1n devices only)\n" \
-    " -b, --boot            just boot tethered (limera1n devices only)\n" \
-    "     --nobootx         Doesn't run \"bootx\" command\n" \
-    " -g, --paniclog        Boot restore ramdisk, print paniclog (if available) and reboot\n" \
-	" -P, --plain-progress  Print progress as plain step and progress\n" \
-	" -R, --restore-mode  Allow restoring from Restore mode\n" \
-	" -T, --ticket PATH   Use file at PATH to send as AP ticket\n\n" \
-	"Homepage: <" PACKAGE_URL ">\n",
+	"  -c, --custom          Restore with a custom firmware (requires bootrom exploit)\n" \
+    "  -w, --downgrade       Downgrade with a custom firmware using Odysseus method (only for 32-bit devices!)\n" \
+	"  -s, --cydia           Use Cydia's signature service instead of Apple's\n" \
+	"  -x, --exclude         Exclude nor/baseband upgrade\n" \
+	"  -t, --shsh            Fetch TSS record and save to .shsh file, then exit\n" \
+    "  -o, --otamanifest     Specify OTA BuildManifest to sign bootfiles with a different ApTicket\n\n" \
+	"  -z, --no-restore      Do not restore and end after booting to the ramdisk\n" \
+	"  -k, --keep-pers       Write personalized components to files for debugging\n" \
+	"  -p, --pwn             Put device in pwned DFU mode and exit (limera1n devices)\n" \
+    "  -b, --boot            just boot tethered (limera1n devices only)\n" \
+    "      --nobootx         Doesn't run \"bootx\" command\n" \
+    "  -g, --paniclog        Boot restore ramdisk, print paniclog (if available) and reboot\n" \
+	"  -P, --plain-progress  Print progress as plain step and progress\n" \
+	"  -R, --restore-mode    Allow restoring from Restore mode\n" \
+	"  -T, --ticket PATH     Use file at PATH to send as AP ticket\n" \
+	"\n" \
+	"Homepage:    <" PACKAGE_URL ">\n" \
+	"Bug Reports: <" PACKAGE_BUGREPORT ">\n",
 	(name ? name + 1 : argv[0]));
 }
 #endif
@@ -217,6 +229,12 @@ static int compare_versions(const char *s_ver1, const char *s_ver2)
 void idevice_event_cb(const idevice_event_t *event, void *userdata)
 {
 	struct idevicerestore_client_t *client = (struct idevicerestore_client_t*)userdata;
+#ifdef HAVE_ENUM_IDEVICE_CONNECTION_TYPE
+	if (event->conn_type != CONNECTION_USBMUXD) {
+		// ignore everything but devices connected through USB
+		return;
+	}
+#endif
 	if (event->event == IDEVICE_DEVICE_ADD) {
 		if (client->ignore_device_add_events) {
 			return;
@@ -224,13 +242,13 @@ void idevice_event_cb(const idevice_event_t *event, void *userdata)
 		if (normal_check_mode(client) == 0) {
 			mutex_lock(&client->device_event_mutex);
 			client->mode = &idevicerestore_modes[MODE_NORMAL];
-			debug("%s: device " FMT_016llx " (udid: %s) connected in normal mode\n", __func__, client->ecid, client->udid);
+			debug("%s: device %016" PRIx64 " (udid: %s) connected in normal mode\n", __func__, client->ecid, client->udid);
 			cond_signal(&client->device_event_cond);
 			mutex_unlock(&client->device_event_mutex);
 		} else if (client->ecid && restore_check_mode(client) == 0) {
 			mutex_lock(&client->device_event_mutex);
 			client->mode = &idevicerestore_modes[MODE_RESTORE];
-			debug("%s: device " FMT_016llx " (udid: %s) connected in restore mode\n", __func__, client->ecid, client->udid);
+			debug("%s: device %016" PRIx64 " (udid: %s) connected in restore mode\n", __func__, client->ecid, client->udid);
 			cond_signal(&client->device_event_cond);
 			mutex_unlock(&client->device_event_mutex);
 		}
@@ -238,7 +256,7 @@ void idevice_event_cb(const idevice_event_t *event, void *userdata)
 		if (client->udid && !strcmp(event->udid, client->udid)) {
 			mutex_lock(&client->device_event_mutex);
 			client->mode = &idevicerestore_modes[MODE_UNKNOWN];
-			debug("%s: device " FMT_016llx " (udid: %s) disconnected\n", __func__, client->ecid, client->udid);
+			debug("%s: device %016" PRIx64 " (udid: %s) disconnected\n", __func__, client->ecid, client->udid);
 			client->ignore_device_add_events = 0;
 			cond_signal(&client->device_event_cond);
 			mutex_unlock(&client->device_event_mutex);
@@ -271,7 +289,7 @@ void irecv_event_cb(const irecv_device_event_t* event, void *userdata)
 				default:
 					client->mode = &idevicerestore_modes[MODE_UNKNOWN];
 			}
-			debug("%s: device " FMT_016llx " (udid: %s) connected in %s mode\n", __func__, client->ecid, (client->udid) ? client->udid : "N/A", client->mode->string);
+			debug("%s: device %016" PRIx64 " (udid: %s) connected in %s mode\n", __func__, client->ecid, (client->udid) ? client->udid : "N/A", client->mode->string);
 			cond_signal(&client->device_event_cond);
 			mutex_unlock(&client->device_event_mutex);
 		}
@@ -279,7 +297,7 @@ void irecv_event_cb(const irecv_device_event_t* event, void *userdata)
 		if (client->ecid && event->device_info->ecid == client->ecid) {
 			mutex_lock(&client->device_event_mutex);
 			client->mode = &idevicerestore_modes[MODE_UNKNOWN];
-			debug("%s: device " FMT_016llx " (udid: %s) disconnected\n", __func__, client->ecid, (client->udid) ? client->udid : "N/A");
+			debug("%s: device %016" PRIx64 " (udid: %s) disconnected\n", __func__, client->ecid, (client->udid) ? client->udid : "N/A");
 			cond_signal(&client->device_event_cond);
 			mutex_unlock(&client->device_event_mutex);
 		}
@@ -338,7 +356,7 @@ int idevicerestore_start(struct idevicerestore_client_t* client)
 			error("ERROR: Could not open device in WTF mode\n");
 			return -1;
 		}
-		if ((dfu_get_cpid(client, &cpid) < 0) || (cpid == 0)) { 
+		if ((dfu_get_cpid(client, &cpid) < 0) || (cpid == 0)) {
 			error("ERROR: Could not get CPID for WTF mode device\n");
 			dfu_client_free(client);
 			return -1;
@@ -501,7 +519,7 @@ int idevicerestore_start(struct idevicerestore_client_t* client)
 				}
 				unsigned long selected = strtoul(input, NULL, 10);
 				if (selected == 0 || selected > count) {
-					printf("Invalid input value. Must be in range: 1..%d\n", count);
+					printf("Invalid input value. Must be in range: 1..%u\n", count);
 					continue;
 				}
 				selected_fw = plist_array_get_item(signed_fws, (uint32_t)selected-1);
@@ -911,7 +929,7 @@ int idevicerestore_start(struct idevicerestore_client_t* client)
 	// Get filesystem name from build identity
 	char* fsname = NULL;
 	if (build_identity_get_component_path(build_identity, "OS", &fsname) < 0) {
-		error("ERROR: Unable get path for filesystem component\n");
+		error("ERROR: Unable to get path for filesystem component\n");
 		return -1;
 	}
 
@@ -1009,7 +1027,7 @@ int idevicerestore_start(struct idevicerestore_client_t* client)
 			remove(tmpf);
 			rename(filesystem, tmpf);
 			free(filesystem);
-			filesystem = strdup(tmpf); 
+			filesystem = strdup(tmpf);
 		}
 	}
 
@@ -1024,7 +1042,7 @@ int idevicerestore_start(struct idevicerestore_client_t* client)
 			error("ERROR: Unable to find device ECID\n");
 			return -1;
 		}
-		info("Found ECID " FMT_qu "\n", (long long unsigned int)client->ecid);
+		info("Found ECID %" PRIu64 "\n", client->ecid);
 
 		if (client->mode->index == MODE_NORMAL && !(client->flags & FLAG_ERASE) && !(client->flags & FLAG_SHSHONLY)) {
 			plist_t node = normal_get_lockdown_value(client, NULL, "HasSiDP");
@@ -1123,7 +1141,7 @@ int idevicerestore_start(struct idevicerestore_client_t* client)
 					strcpy(zfn, "shsh");
 				}
 				mkdir_with_parents(zfn, 0755);
-				sprintf(zfn+strlen(zfn), "/" FMT_qu "-%s-%s.shsh", (long long int)client->ecid, client->device->product_type, client->version);
+				sprintf(zfn+strlen(zfn), "/%" PRIu64 "-%s-%s.shsh", client->ecid, client->device->product_type, client->version);
 				struct stat fst;
 				if (stat(zfn, &fst) != 0) {
 					gzFile zf = gzopen(zfn, "wb");
@@ -1348,6 +1366,7 @@ int idevicerestore_start(struct idevicerestore_client_t* client)
 		if (client->mode != &idevicerestore_modes[MODE_RESTORE] || (client->flags & FLAG_QUIT)) {
 			mutex_unlock(&client->device_event_mutex);
 			error("ERROR: Device failed to enter restore mode.\n");
+			error("Please make sure that usbmuxd is running.\n");
 			if (delete_fs && filesystem)
 				unlink(filesystem);
 			return -1;
@@ -1357,6 +1376,10 @@ int idevicerestore_start(struct idevicerestore_client_t* client)
 
 	// device is finally in restore mode, let's do this
 	if (client->mode->index == MODE_RESTORE) {
+		if ((client->flags & FLAG_NO_RESTORE) != 0) {
+			info("Device is now in restore mode. Exiting as requested.");
+			return 0;
+		}
 		client->ignore_device_add_events = 1;
 		info("About to restore device... \n");
 		result = restore_device(client, build_identity, filesystem);
@@ -1468,7 +1491,7 @@ void idevicerestore_client_free(struct idevicerestore_client_t* client)
 	free(client);
 }
 
-void idevicerestore_set_ecid(struct idevicerestore_client_t* client, unsigned long long ecid)
+void idevicerestore_set_ecid(struct idevicerestore_client_t* client, uint64_t ecid)
 {
 	if (!client)
 		return;
@@ -1581,7 +1604,7 @@ int main(int argc, char* argv[]) {
 		client->flags |= FLAG_INTERACTIVE;
 	}
 
-    while ((opt = getopt_long(argc, argv, "dhcesxtplibgo:u:nC:wkyPRT", longopts, &optindex)) > 0) {
+    while ((opt = getopt_long(argc, argv, "dhcesxtplibgo:u:nC:wkyPRT:zv", longopts, &optindex)) > 0) {
 		switch (opt) {
 		case 'h':
 			usage(argc, argv, 0);
@@ -1683,6 +1706,14 @@ int main(int argc, char* argv[]) {
 			client->flags |= FLAG_ALLOW_RESTORE_MODE;
 			break;
 
+		case 'z':
+			client->flags |= FLAG_NO_RESTORE;
+			break;
+
+		case 'v':
+			info("%s %s\n", PACKAGE_NAME, PACKAGE_VERSION);
+			return 0;
+
 		case 'T': {
 			size_t root_ticket_len = 0;
 			unsigned char* root_ticket = NULL;
@@ -1694,6 +1725,7 @@ int main(int argc, char* argv[]) {
 			info("Using ApTicket found at %s length %u\n", optarg, client->root_ticket_len);
 			break;
 		}
+
 		default:
 			usage(argc, argv, 1);
 			return -1;
@@ -2090,9 +2122,9 @@ int get_tss_response(struct idevicerestore_client_t* client, plist_t build_ident
 		char zfn[1024];
 		if (client->version) {
 			if (client->cache_dir) {
-				sprintf(zfn, "%s/shsh/" FMT_qu "-%s-%s.shsh", client->cache_dir, (long long int)client->ecid, client->device->product_type, client->version);
+				sprintf(zfn, "%s/shsh/%" PRIu64 "-%s-%s.shsh", client->cache_dir, client->ecid, client->device->product_type, client->version);
 			} else {
-				sprintf(zfn, "shsh/" FMT_qu "-%s-%s.shsh", (long long int)client->ecid, client->device->product_type, client->version);
+				sprintf(zfn, "shsh/%" PRIu64 "-%s-%s.shsh", client->ecid, client->device->product_type, client->version);
 			}
 			struct stat fst;
 			if (stat(zfn, &fst) == 0) {
@@ -2242,7 +2274,7 @@ int get_tss_response(struct idevicerestore_client_t* client, plist_t build_ident
 			if (node) {
 				plist_dict_set_item(parameters, "BbSNUM", plist_copy(node));
 			}
-		
+
 			/* add baseband parameters */
 			tss_request_add_baseband_tags(request, parameters, NULL);
 
