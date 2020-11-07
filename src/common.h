@@ -156,6 +156,8 @@ char *generate_guid(void);
 #define __usleep(x) usleep(x)
 #endif
 
+int mkdir_with_parents(const char *dir, int mode);
+
 char *get_temp_filename(const char *prefix);
 
 void idevicerestore_progress(struct idevicerestore_client_t* client, int step, double progress);

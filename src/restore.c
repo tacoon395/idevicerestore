@@ -1756,24 +1756,19 @@ static int restore_send_baseband_data(restored_client_t restore, struct idevicer
 		error("WARNING: Could not generate temporary filename, using bbfw.tmp\n");
 		bbfwtmp = strdup("bbfw.tmp");
 	}
-	if (ipsw_extract_to_file(client->ipsw, bbfwpath, bbfwtmp) != 0) {
-		error("ERROR: Unable to extract baseband firmware from ipsw\n");
-		plist_free(response);
-		return -1;
-    }else{
-        FILE *f1 = fopen(client->bbfwtmp,"rb");
-        FILE *f2 = fopen(bbfwtmp,"wb");
-        size_t s;
-        fseek(f1, 0, SEEK_END);
-        s = ftell(f1);
-        fseek(f1, 0, SEEK_SET);
 
-        char * buf = malloc(s);
-        fread(buf, 1, s, f1);
-        fwrite(buf, 1, s, f2);
-        fclose(f1);
-        fclose(f2);
-    }
+    FILE *f1 = fopen(client->bbfwtmp,"rb");
+    FILE *f2 = fopen(bbfwtmp,"wb");
+    size_t s;
+    fseek(f1, 0, SEEK_END);
+    s = ftell(f1);
+    fseek(f1, 0, SEEK_SET);
+
+    char * buf = malloc(s);
+    fread(buf, 1, s, f1);
+    fwrite(buf, 1, s, f2);
+    fclose(f1);
+    fclose(f2);
 
 	if (bb_nonce && !client->restore->bbtss) {
 		// keep the response for later requests
