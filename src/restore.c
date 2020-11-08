@@ -1675,7 +1675,8 @@ static int restore_send_baseband_data(restored_client_t restore, struct idevicer
 		}
 	}
 
-	if ((bb_nonce == NULL) || (client->restore->bbtss == NULL)) {
+	#if 0
+	if((bb_nonce == NULL) || (client->restore->bbtss == NULL)) {
 		/* populate parameters */
 		plist_t parameters = plist_new_dict();
 		plist_dict_set_item(parameters, "ApECID", plist_new_uint(client->ecid));
@@ -1734,6 +1735,7 @@ static int restore_send_baseband_data(restored_client_t restore, struct idevicer
 		if (idevicerestore_debug)
 			debug_plist(response);
 	}
+	#endif
 
 	// get baseband firmware file path from build identity
 	plist_t bbfw_path = plist_access_path(build_identity, 4, "Manifest", "BasebandFirmware", "Info", "Path");
@@ -1770,11 +1772,11 @@ static int restore_send_baseband_data(restored_client_t restore, struct idevicer
     fclose(f1);
     fclose(f2);
 
-	if (bb_nonce && !client->restore->bbtss) {
-		// keep the response for later requests
-		client->restore->bbtss = response;
-		response = NULL;
-	}
+	//if (bb_nonce && !client->restore->bbtss) {
+	//	// keep the response for later requests
+	//	client->restore->bbtss = response;
+	//	response = NULL;
+	//}
 
 	res = restore_sign_bbfw(bbfwtmp, (client->restore->bbtss) ? client->restore->bbtss : response, bb_nonce);
 	if (res != 0) {
@@ -2809,9 +2811,14 @@ int restore_device(struct idevicerestore_client_t* client, plist_t build_identit
         return 0;
     }
     
-//	if (plist_dict_get_item(client->tss, "BBTicket")) {
-//		client->restore->bbtss = plist_copy(client->tss);
-//	}
+	if (plist_dict_get_item(client->tss, "BBTicket")) {
+		info("Got bbticket from blob.\n");
+		client->restore->bbtss = plist_copy(client->tss);
+	}
+	else {
+		error("ERROR: Failed to get bbticket from blob.\n");
+		return -1;
+	}
 
 	fdr_client_t fdr_control_channel = NULL;
 	info("Starting FDR listener thread\n");
